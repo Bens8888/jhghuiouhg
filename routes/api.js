@@ -1,3 +1,25 @@
+// =============================================
+// SIMPLE SHOPIFY ORDER FETCH
+// =============================================
+router.get('/orders', async (req, res) => {
+  const { orderNumber, email } = req.query;
+
+  if (!orderNumber || !email) {
+    return res.status(400).json({ error: 'Provide orderNumber and email' });
+  }
+
+  try {
+    const order = await shopify.getOrderByNumber(orderNumber, email);
+    if (!order) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    res.json({ success: true, order });
+  } catch (err) {
+    console.error('Error fetching Shopify order:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 const express = require('express');
 const router = express.Router();
 const { v4: uuidv4 } = require('uuid');
