@@ -45,25 +45,36 @@ router.post('/track', async (req, res) => {
     `SELECT * FROM order_cache WHERE order_number = ? AND datetime(updated_at, '+15 minutes') > datetime('now')`
   ).get(orderNumber.trim().replace('#', ''));
 
+  // Safe JSON parse helper
+  function safeParse(jsonString) {
+    if (!jsonString || jsonString.trim() === '') return null;
+    try {
+      return JSON.parse(jsonString);
+    } catch {
+      return null;
+    }
+  }
+
   let order;
   let fromCache = false;
 
   if (cached) {
-    order = JSON.parse(cached.shopify_data);
-    fromCache = true;
-  } else {
-    order = await shopify.getOrderByNumber(orderNumber, emailOrPhone);
+    order = safeParse(cached.shopify_data);
+    if (order) fromCache = true;
   }
 
   if (!order) {
-    // For demo mode when Shopify is not configured
-    if (process.env.DEMO_MODE === 'true') {
-      order = generateDemoOrder(orderNumber, emailOrPhone);
-    } else {
-      return res.status(404).json({
-        error: 'Order not found. Please check your order number and email/phone.',
-        hint: 'Your order number can be found in your confirmation email (e.g. #1001)',
-      });
+    // Fetch from Shopify or demo fallback
+    order = await shopify.getOrderByNumber(orderNumber, emailOrPhone);
+    if (!order) {
+      if (process.env.DEMO_MODE === 'true') {
+        order = generateDemoOrder(orderNumber, emailOrPhone);
+      } else {
+        return res.status(404).json({
+          error: 'Order not found. Please check your order number and email/phone.',
+          hint: 'Your order number can be found in your confirmation email (e.g. #1001)',
+        });
+      }
     }
   }
 
@@ -71,7 +82,7 @@ router.post('/track', async (req, res) => {
   const orderCacheRow = db.prepare('SELECT * FROM order_cache WHERE order_number = ?')
     .get(orderNumber.trim().replace('#', ''));
 
-  // Update or insert cache
+  // Update or insert cache if fresh fetch
   if (!fromCache && order.id) {
     db.prepare(`
       INSERT INTO order_cache (order_number, shopify_data, updated_at)
@@ -89,7 +100,7 @@ router.post('/track', async (req, res) => {
   const stage = shopify.calculateProductionStage(order, adminStageOverride > 0 ? adminStageOverride : null);
   const stageDetails = shopify.getStageDetails();
 
-  // Get global delay
+  // Global delay & estimates
   const globalDelay = stats?.global_delay_days || 0;
   const estimates = shopify.calculateEstimates(order, globalDelay);
 
@@ -99,15 +110,15 @@ router.post('/track', async (req, res) => {
   const confidenceVariation = Math.sin(hourOfDay / 24 * Math.PI) * 5;
   const confidenceScore = Math.min(99, Math.max(60, Math.round(baseConfidence + confidenceVariation)));
 
-  // Get batch number
+  // Batch number
   const batchNumber = orderCacheRow?.batch_number || `#${stats?.batch_number || 24}`;
 
-  // Recent activity feed
+  // Activity feed
   const activity = db.prepare(
     'SELECT * FROM activity_feed ORDER BY created_at DESC LIMIT 8'
   ).all();
 
-  // Check tickets for this order
+  // Tickets for this order
   const tickets = db.prepare(
     'SELECT id, issue_type, status, reference_number, created_at FROM tickets WHERE order_number = ? ORDER BY created_at DESC'
   ).all(orderNumber.trim().replace('#', ''));
@@ -145,7 +156,6 @@ router.post('/track', async (req, res) => {
     },
   });
 });
-
 // =============================================
 // CREATE TICKET
 // =============================================
