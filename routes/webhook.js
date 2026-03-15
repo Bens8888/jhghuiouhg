@@ -18,9 +18,20 @@ function verifyWebhook(req) {
 
 // Middleware to capture raw body for webhook verification
 router.use(express.raw({ type: 'application/json' }));
+
 router.use((req, res, next) => {
-  req.rawBody = req.body;
-  try { req.body = JSON.parse(req.body); } catch { req.body = {}; }
+  // Convert raw body to string
+  req.rawBody = req.body ? req.body.toString() : '';
+  if (!req.rawBody) {
+    req.body = {};
+  } else {
+    try {
+      req.body = JSON.parse(req.rawBody);
+    } catch (err) {
+      console.warn('Invalid JSON body received in webhook:', err.message);
+      req.body = {};
+    }
+  }
   next();
 });
 
