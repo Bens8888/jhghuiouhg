@@ -13,40 +13,28 @@ const PORT = process.env.PORT || 3000;
 // =============================================
 // SECURITY & MIDDLEWARE
 // =============================================
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", 'maps.googleapis.com'],
-      styleSrc: ["'self'", "'unsafe-inline'", 'fonts.googleapis.com'],
-      fontSrc: ["'self'", 'fonts.gstatic.com'],
-      imgSrc: ["'self'", 'data:', '*.googleapis.com', '*.gstatic.com'],
-      connectSrc: ["'self'"],
-      frameSrc: ["'self'", '*.google.com'],
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'", 'maps.googleapis.com'],
+        styleSrc: ["'self'", "'unsafe-inline'", 'fonts.googleapis.com'],
+        fontSrc: ["'self'", 'fonts.gstatic.com'],
+        imgSrc: ["'self'", 'data:', '*.googleapis.com', '*.gstatic.com'],
+        connectSrc: ["'self'"],
+        frameSrc: ["'self'", '*.google.com'],
+      },
     },
-  },
-}));
+  })
+);
 
-app.use(cors({
-  origin: process.env.ALLOWED_ORIGINS?.split(',') || '*',
-  credentials: true,
-}));
-
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true }));
-
-// Rate limiting
-const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100,
-  message: { error: 'Too many requests. Please try again later.' },
-});
-
-const trackLimiter = rateLimit({
-  windowMs: 5 * 60 * 1000,
-  max: 20,
-  message: { error: 'Too many tracking requests. Please wait a moment.' },
-});
+app.use(
+  cors({
+    origin: process.env.ALLOWED_ORIGINS?.split(',') || '*',
+    credentials: true,
+  })
+);
 
 // =============================================
 // STATIC FILES
@@ -55,13 +43,38 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // =============================================
+// WEBHOOKS (must come BEFORE express.json())
+// =============================================
+app.use('/webhooks', require('./routes/webhook')); // webhook.js uses express.raw internally
+
+// =============================================
+// BODY PARSING (API routes only)
+// =============================================
+app.use('/api', express.json({ limit: '10mb' }));
+app.use('/api', express.urlencoded({ extended: true }));
+
+// =============================================
+// RATE LIMITERS
+// =============================================
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100,
+  message: { error: 'Too many requests. Please try again later.' },
+});
+
+const trackLimiter = rateLimit({
+  windowMs: 5 * 60 * 1000, // 5 minutes
+  max: 20,
+  message: { error: 'Too many tracking requests. Please wait a moment.' },
+});
+
+// =============================================
 // ROUTES
 // =============================================
 app.use('/api', apiLimiter);
 app.use('/api/track', trackLimiter);
 app.use('/api', require('./routes/api'));
 app.use('/admin/api', require('./routes/admin'));
-app.use('/webhooks', require('./routes/webhook'));
 
 // SPA fallback routes
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public/index.html')));
@@ -101,7 +114,7 @@ cron.schedule('0 0 * * *', () => {
 // Hourly activity feed updates (realistic simulation)
 cron.schedule('0 * * * *', () => {
   const hour = new Date().getHours();
-  if (hour < 7 || hour > 22) return; // No updates overnight
+  if (hour < 7 || hour > 22) return;
 
   const activities = [
     ['production', `Batch production continues — ${Math.floor(Math.random() * 20) + 10} items completed this hour`, 'factory'],
@@ -118,7 +131,6 @@ cron.schedule('0 * * * *', () => {
   // Keep feed clean — max 100 entries
   db.prepare('DELETE FROM activity_feed WHERE id NOT IN (SELECT id FROM activity_feed ORDER BY created_at DESC LIMIT 100)').run();
 
-  // Update produced count slightly
   const today = new Date().toISOString().split('T')[0];
   const increment = Math.floor(Math.random() * 15) + 5;
   db.prepare('UPDATE production_stats SET orders_produced = orders_produced + ? WHERE stat_date = ?').run(increment, today);
@@ -132,6 +144,9 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Internal server error' });
 });
 
+// =============================================
+// START SERVER
+// =============================================
 app.listen(PORT, () => {
   console.log(`
   ╔════════════════════════════════════════╗
