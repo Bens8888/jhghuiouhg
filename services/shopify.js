@@ -8,7 +8,7 @@ const CLIENT_SECRET = process.env.SHOPIFY_CLIENT_SECRET;
 let token = null;
 let tokenExpiresAt = 0;
 
-// Fetch a new access token programmatically
+// Fetch a new access token programmatically (client_credentials)
 async function getToken() {
   if (token && Date.now() < tokenExpiresAt - 60_000) return token; // cache
 
@@ -23,7 +23,7 @@ async function getToken() {
     });
 
     token = response.data.access_token;
-    tokenExpiresAt = Date.now() + (response.data.expires_in * 1000);
+    tokenExpiresAt = Date.now() + (response.data.expires_in * 1000);  // Set token expiry time
     return token;
   } catch (err) {
     console.error('Failed to get Shopify token:', err.response?.data || err.message);
@@ -39,10 +39,7 @@ async function getHeaders() {
   };
 }
 
-// =============================================
-// SHOPIFY API HELPERS
-// =============================================
-
+// Fetch order by number (given order number and email)
 async function getOrderByNumber(orderNumber, email) {
   try {
     const name = orderNumber.startsWith('#') ? orderNumber : `#${orderNumber}`;
@@ -74,49 +71,7 @@ async function getOrderByNumber(orderNumber, email) {
   }
 }
 
-async function getOrderById(shopifyOrderId) {
-  try {
-    const response = await axios.get(
-      `https://${SHOP}.myshopify.com/admin/api/${API_VERSION}/orders/${shopifyOrderId}.json`,
-      { headers: await getHeaders() }
-    );
-    return formatOrder(response.data.order);
-  } catch (err) {
-    console.error('Shopify getOrderById error:', err.message);
-    return null;
-  }
-}
-
-async function updateOrderTags(shopifyOrderId, tags) {
-  try {
-    await axios.put(
-      `https://${SHOP}.myshopify.com/admin/api/${API_VERSION}/orders/${shopifyOrderId}.json`,
-      { order: { id: shopifyOrderId, tags } },
-      { headers: await getHeaders() }
-    );
-    return true;
-  } catch (err) {
-    console.error('Shopify updateTags error:', err.message);
-    return false;
-  }
-}
-
-async function addOrderNote(shopifyOrderId, note) {
-  try {
-    await axios.put(
-      `https://${SHOP}.myshopify.com/admin/api/${API_VERSION}/orders/${shopifyOrderId}.json`,
-      { order: { id: shopifyOrderId, note } },
-      { headers: await getHeaders() }
-    );
-    return true;
-  } catch (err) {
-    console.error('Shopify addNote error:', err.message);
-    return false;
-  }
-}
-
-// =============================================
-// OTHER HELPERS (unchanged)
+// Format the order data
 function formatOrder(raw) {
   const fulfillment = raw.fulfillments?.[0];
   const tracking = fulfillment?.tracking_info || {};
@@ -167,8 +122,5 @@ function normalizePhone(phone) {
 
 module.exports = {
   getOrderByNumber,
-  getOrderById,
-  updateOrderTags,
-  addOrderNote,
   formatOrder,
 };
