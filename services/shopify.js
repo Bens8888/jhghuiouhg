@@ -1,10 +1,43 @@
 const axios = require('axios');
+require('dotenv').config(); // Load .env variables
+const SHOP = process.env.SHOPIFY_SHOP;
+const API_VERSION = process.env.SHOPIFY_API_VERSION;
+const CLIENT_ID = process.env.SHOPIFY_CLIENT_ID;
+const CLIENT_SECRET = process.env.SHOPIFY_CLIENT_SECRET;
 
-const SHOPIFY_BASE = `https://${process.env.SHOPIFY_SHOP_DOMAIN}/admin/api/${process.env.SHOPIFY_API_VERSION}`;
-const HEADERS = {
-  'X-Shopify-Access-Token': process.env.SHOPIFY_ACCESS_TOKEN,
-  'Content-Type': 'application/json',
-};
+let token = null;
+let tokenExpiresAt = 0;
+
+// Fetch a new access token programmatically
+async function getToken() {
+  if (token && Date.now() < tokenExpiresAt - 60_000) return token; // cache
+
+  try {
+    const response = await axios.post(`https://${SHOP}.myshopify.com/admin/oauth/access_token`, null, {
+      params: {
+        grant_type: 'client_credentials',
+        client_id: CLIENT_ID,
+        client_secret: CLIENT_SECRET,
+      },
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    });
+
+    token = response.data.access_token;
+    tokenExpiresAt = Date.now() + (response.data.expires_in * 1000);
+    return token;
+  } catch (err) {
+    console.error('Failed to get Shopify token:', err.response?.data || err.message);
+    throw err;
+  }
+}
+
+// Helper to get headers with dynamic token
+async function getHeaders() {
+  return {
+    'X-Shopify-Access-Token': await getToken(),
+    'Content-Type': 'application/json',
+  };
+}
 
 // =============================================
 // SHOPIFY API HELPERS
@@ -12,21 +45,22 @@ const HEADERS = {
 
 async function getOrderByNumber(orderNumber, email) {
   try {
-    // Shopify uses order names like #1001
     const name = orderNumber.startsWith('#') ? orderNumber : `#${orderNumber}`;
-    const response = await axios.get(`${SHOPIFY_BASE}/orders.json`, {
-      headers: HEADERS,
-      params: {
-        name,
-        status: 'any',
-        fields: 'id,name,email,phone,created_at,financial_status,fulfillment_status,fulfillments,line_items,shipping_address,shipping_lines,note',
-      },
-    });
+    const response = await axios.get(
+      `https://${SHOP}.myshopify.com/admin/api/${API_VERSION}/orders.json`,
+      {
+        headers: await getHeaders(),
+        params: {
+          name,
+          status: 'any',
+          fields: 'id,name,email,phone,created_at,financial_status,fulfillment_status,fulfillments,line_items,shipping_address,shipping_lines,note',
+        },
+      }
+    );
 
     const orders = response.data.orders || [];
     if (orders.length === 0) return null;
 
-    // Match by email or phone for security
     const order = orders.find(o => {
       const emailMatch = email && o.email && o.email.toLowerCase() === email.toLowerCase();
       const phoneMatch = email && o.phone && normalizePhone(o.phone) === normalizePhone(email);
@@ -42,9 +76,10 @@ async function getOrderByNumber(orderNumber, email) {
 
 async function getOrderById(shopifyOrderId) {
   try {
-    const response = await axios.get(`${SHOPIFY_BASE}/orders/${shopifyOrderId}.json`, {
-      headers: HEADERS,
-    });
+    const response = await axios.get(
+      `https://${SHOP}.myshopify.com/admin/api/${API_VERSION}/orders/${shopifyOrderId}.json`,
+      { headers: await getHeaders() }
+    );
     return formatOrder(response.data.order);
   } catch (err) {
     console.error('Shopify getOrderById error:', err.message);
@@ -54,9 +89,11 @@ async function getOrderById(shopifyOrderId) {
 
 async function updateOrderTags(shopifyOrderId, tags) {
   try {
-    await axios.put(`${SHOPIFY_BASE}/orders/${shopifyOrderId}.json`, {
-      order: { id: shopifyOrderId, tags },
-    }, { headers: HEADERS });
+    await axios.put(
+      `https://${SHOP}.myshopify.com/admin/api/${API_VERSION}/orders/${shopifyOrderId}.json`,
+      { order: { id: shopifyOrderId, tags } },
+      { headers: await getHeaders() }
+    );
     return true;
   } catch (err) {
     console.error('Shopify updateTags error:', err.message);
@@ -66,9 +103,11 @@ async function updateOrderTags(shopifyOrderId, tags) {
 
 async function addOrderNote(shopifyOrderId, note) {
   try {
-    await axios.put(`${SHOPIFY_BASE}/orders/${shopifyOrderId}.json`, {
-      order: { id: shopifyOrderId, note },
-    }, { headers: HEADERS });
+    await axios.put(
+      `https://${SHOP}.myshopify.com/admin/api/${API_VERSION}/orders/${shopifyOrderId}.json`,
+      { order: { id: shopifyOrderId, note } },
+      { headers: await getHeaders() }
+    );
     return true;
   } catch (err) {
     console.error('Shopify addNote error:', err.message);
@@ -77,16 +116,12 @@ async function addOrderNote(shopifyOrderId, note) {
 }
 
 // =============================================
-// ORDER FORMATTER
-// =============================================
-
+// OTHER HELPERS (unchanged)
 function formatOrder(raw) {
   const fulfillment = raw.fulfillments?.[0];
   const tracking = fulfillment?.tracking_info || {};
   const shippingLine = raw.shipping_lines?.[0];
-
-  // Calculate production stage from order age and status
-  const orderAge = Math.floor((Date.now() - new Date(raw.created_at)) / (1000 * 60 * 60)); // hours
+  const orderAge = Math.floor((Date.now() - new Date(raw.created_at)) / (1000 * 60 * 60));
 
   return {
     id: raw.id,
@@ -126,118 +161,6 @@ function formatOrder(raw) {
   };
 }
 
-// =============================================
-// PRODUCTION STAGE CALCULATOR
-// =============================================
-
-function calculateProductionStage(order, adminOverride = null) {
-  if (adminOverride !== null) return adminOverride;
-
-  const { orderAge, fulfillmentStatus, shippedAt } = order;
-
-  if (fulfillmentStatus === 'fulfilled' || shippedAt) return 7; // Shipped
-  if (orderAge < 24) return 1;     // Processing
-  if (orderAge < 48) return 2;     // Waiting for stock
-  if (orderAge < 120) return 3;    // Preparing batch
-  if (orderAge < 168) return 4;    // Manufacturing
-  if (orderAge < 216) return 5;    // Packing
-  if (orderAge < 264) return 6;    // Shipping soon
-  return 6;                        // Shipping soon (default max before shipped)
-}
-
-function getStageDetails() {
-  return [
-    {
-      step: 1,
-      label: 'Processing Order',
-      description: 'We\'ve received your order and are verifying payment and details.',
-      duration: '24 hours',
-      icon: 'clipboard-check',
-      color: '#3b82f6',
-    },
-    {
-      step: 2,
-      label: 'Waiting for Stock',
-      description: 'Your items are being sourced and allocated from our production inventory.',
-      duration: '24 hours',
-      icon: 'boxes',
-      color: '#8b5cf6',
-    },
-    {
-      step: 3,
-      label: 'Preparing Production Batch',
-      description: 'Your order has been added to a production batch with similar items for efficient manufacturing.',
-      duration: '3 days',
-      icon: 'layers',
-      color: '#f59e0b',
-    },
-    {
-      step: 4,
-      label: 'Manufacturing Item',
-      description: 'Your item is actively being produced by our manufacturing team. Each piece is made with care.',
-      duration: '2–4 days',
-      icon: 'settings',
-      color: '#ef4444',
-    },
-    {
-      step: 5,
-      label: 'Packing Order',
-      description: 'Your item has passed quality control and is being carefully packed for safe delivery.',
-      duration: '1 day',
-      icon: 'package',
-      color: '#10b981',
-    },
-    {
-      step: 6,
-      label: 'Shipping Soon',
-      description: 'Your order is ready to dispatch. We\'re preparing the shipment and booking collection.',
-      duration: '48 hours',
-      icon: 'truck',
-      color: '#06b6d4',
-    },
-    {
-      step: 7,
-      label: 'Shipped',
-      description: 'Your order is on its way! Use your tracking number to follow it in real time.',
-      duration: 'In transit',
-      icon: 'map-pin',
-      color: '#22c55e',
-    },
-  ];
-}
-
-function calculateEstimates(order, globalDelayDays = 0) {
-  const created = new Date(order.createdAt);
-  const delayMs = globalDelayDays * 24 * 60 * 60 * 1000;
-
-  // Estimated ship date: ~9 days from order + delay
-  const shipDate = new Date(created.getTime() + (9 * 24 * 60 * 60 * 1000) + delayMs);
-
-  // Estimated delivery: 3-7 days after ship
-  const deliveryMin = new Date(shipDate.getTime() + (3 * 24 * 60 * 60 * 1000));
-  const deliveryMax = new Date(shipDate.getTime() + (7 * 24 * 60 * 60 * 1000));
-
-  // If already shipped, use actual ship date
-  if (order.shippedAt) {
-    const actualShip = new Date(order.shippedAt);
-    const estDeliveryMin = new Date(actualShip.getTime() + (3 * 24 * 60 * 60 * 1000));
-    const estDeliveryMax = new Date(actualShip.getTime() + (7 * 24 * 60 * 60 * 1000));
-    return {
-      estimatedShipDate: actualShip.toISOString(),
-      estimatedDeliveryMin: estDeliveryMin.toISOString(),
-      estimatedDeliveryMax: estDeliveryMax.toISOString(),
-      shipped: true,
-    };
-  }
-
-  return {
-    estimatedShipDate: shipDate.toISOString(),
-    estimatedDeliveryMin: deliveryMin.toISOString(),
-    estimatedDeliveryMax: deliveryMax.toISOString(),
-    shipped: false,
-  };
-}
-
 function normalizePhone(phone) {
   return phone.replace(/[\s\-\(\)\+]/g, '');
 }
@@ -247,8 +170,5 @@ module.exports = {
   getOrderById,
   updateOrderTags,
   addOrderNote,
-  calculateProductionStage,
-  getStageDetails,
-  calculateEstimates,
   formatOrder,
 };
