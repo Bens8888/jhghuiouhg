@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel — Plug & Play</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/styles.css" />
+  <link rel="stylesheet" href="/css/admin.css" />
+</head>
+<body class="admin-page">
+
+  <!-- Login overlay -->
+  <div class="admin-login-overlay" id="loginOverlay">
+    <div class="login-card">
+      <div class="logo-wrap" style="justify-content:center; margin-bottom:2rem">
+        <div class="logo-icon">
+          <svg viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="18" stroke="url(#gA)" stroke-width="2.5"/><path d="M13 20l5 5 9-10" stroke="url(#gA)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="gA" x1="0" y1="0" x2="40" y2="40"><stop offset="0%" stop-color="#6366f1"/><stop offset="100%" stop-color="#06b6d4"/></linearGradient></defs></svg>
+        </div>
+        <div class="logo-text"><span class="logo-main">Plug &amp; Play</span><span class="logo-sub">Admin Panel</span></div>
+      </div>
+      <form id="loginForm">
+        <div class="form-group">
+          <label class="form-label">Username</label>
+          <input type="text" id="adminUser" class="form-input" placeholder="admin" autocomplete="username" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" id="adminPass" class="form-input" placeholder="••••••••" autocomplete="current-password" />
+        </div>
+        <div id="loginError" class="form-error" style="display:none"></div>
+        <button type="submit" class="btn-track" style="width:100%">Sign In</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Admin app -->
+  <div class="admin-app" id="adminApp" style="display:none">
+
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-logo">
+        <span class="logo-main" style="font-size:1.1rem">Plug &amp; Play</span>
+        <span class="logo-sub">Admin</span>
+      </div>
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-tab="dashboard">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z"/><path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z"/></svg>
+          Dashboard
+        </button>
+        <button class="nav-item" data-tab="tickets">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>
+          Tickets
+          <span class="badge" id="sidebarTicketBadge" style="display:none"></span>
+        </button>
+        <button class="nav-item" data-tab="orders">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3z"/></svg>
+          Orders
+        </button>
+        <button class="nav-item" data-tab="production">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/></svg>
+          Production
+        </button>
+        <button class="nav-item" data-tab="behavior">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/></svg>
+          Customer Behavior
+        </button>
+        <button class="nav-item" data-tab="activity">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5zm11 1H6v8l4-2 4 2V6z" clip-rule="evenodd"/></svg>
+          Activity Feed
+        </button>
+      </nav>
+      <button class="sidebar-logout" id="logoutBtn">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd"/></svg>
+        Sign Out
+      </button>
+    </aside>
+
+    <!-- Main content -->
+    <div class="admin-main">
+
+      <!-- ===== DASHBOARD ===== -->
+      <div class="admin-tab" id="tab-dashboard">
+        <div class="tab-header">
+          <h1 class="tab-title">Dashboard</h1>
+          <button class="btn-secondary" onclick="adminApp.loadDashboard()">Refresh</button>
+        </div>
+
+        <div class="admin-stats-grid" id="dashboardStats">
+          <div class="admin-stat-card">
+            <div class="astat-val" id="ds-produced">—</div>
+            <div class="astat-label">Produced Today</div>
+          </div>
+          <div class="admin-stat-card">
+            <div class="astat-val" id="ds-shipped">—</div>
+            <div class="astat-label">Shipped This Week</div>
+          </div>
+          <div class="admin-stat-card">
+            <div class="astat-val" id="ds-queue">—</div>
+            <div class="astat-label">In Queue</div>
+          </div>
+          <div class="admin-stat-card alert" id="ds-openTicketsCard">
+            <div class="astat-val" id="ds-openTickets">—</div>
+            <div class="astat-label">Open Tickets</div>
+          </div>
+          <div class="admin-stat-card warning">
+            <div class="astat-val" id="ds-highPriority">—</div>
+            <div class="astat-label">High Priority</div>
+          </div>
+          <div class="admin-stat-card">
+            <div class="astat-val" id="ds-views">—</div>
+            <div class="astat-label">Views (24h)</div>
+          </div>
+        </div>
+
+        <!-- Angry customers -->
+        <div class="admin-section">
+          <h2 class="admin-section-title">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="18"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+            Frequent Checkers (5+ views / 24h)
+          </h2>
+          <div id="angryCustomers" class="admin-list"></div>
+        </div>
+
+        <!-- Recent tickets -->
+        <div class="admin-section">
+          <h2 class="admin-section-title">Recent Support Tickets</h2>
+          <div id="dashRecentTickets"></div>
+        </div>
+      </div>
+
+      <!-- ===== TICKETS ===== -->
+      <div class="admin-tab" id="tab-tickets" style="display:none">
+        <div class="tab-header">
+          <h1 class="tab-title">Support Tickets</h1>
+          <div class="tab-actions">
+            <input type="text" id="ticketSearch" class="form-input" placeholder="Search order, email, phone..." style="width:240px" />
+            <select id="ticketStatusFilter" class="form-input" style="width:140px">
+              <option value="">All Status</option>
+              <option value="open">Open</option>
+              <option value="in_progress">In Progress</option>
+              <option value="resolved">Resolved</option>
+              <option value="closed">Closed</option>
+            </select>
+            <select id="ticketPriorityFilter" class="form-input" style="width:130px">
+              <option value="">All Priority</option>
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+            </select>
+          </div>
+        </div>
+        <div id="ticketsTable"></div>
+        <div class="pagination" id="ticketsPagination"></div>
+
+        <!-- Ticket detail modal -->
+        <div class="modal-overlay" id="ticketModal" style="display:none">
+          <div class="modal-card">
+            <button class="modal-close" id="ticketModalClose">×</button>
+            <div id="ticketModalContent"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== ORDERS ===== -->
+      <div class="admin-tab" id="tab-orders" style="display:none">
+        <div class="tab-header">
+          <h1 class="tab-title">Order Management</h1>
+        </div>
+        <div class="admin-section">
+          <div class="form-row">
+            <div class="form-group" style="flex:1">
+              <label class="form-label">Search Order Number</label>
+              <input type="text" id="orderSearch" class="form-input" placeholder="#1001" />
+            </div>
+            <div style="display:flex; align-items:flex-end">
+              <button class="btn-track" onclick="adminApp.loadOrder()">Load Order</button>
+            </div>
+          </div>
+          <div id="orderDetail" style="display:none"></div>
+        </div>
+      </div>
+
+      <!-- ===== PRODUCTION ===== -->
+      <div class="admin-tab" id="tab-production" style="display:none">
+        <div class="tab-header">
+          <h1 class="tab-title">Production Controls</h1>
+        </div>
+
+        <div class="admin-section">
+          <h2 class="admin-section-title">Today's Stats</h2>
+          <div class="production-controls">
+            <div class="control-group">
+              <label class="form-label">Orders Produced Today</label>
+              <div class="input-wrap">
+                <input type="number" id="pc-produced" class="form-input" placeholder="173" />
+              </div>
+            </div>
+            <div class="control-group">
+              <label class="form-label">Orders Shipped This Week</label>
+              <input type="number" id="pc-shipped" class="form-input" placeholder="312" />
+            </div>
+            <div class="control-group">
+              <label class="form-label">Orders In Queue</label>
+              <input type="number" id="pc-queue" class="form-input" placeholder="847" />
+            </div>
+            <div class="control-group">
+              <label class="form-label">Current Batch Number</label>
+              <input type="number" id="pc-batch" class="form-input" placeholder="24" />
+            </div>
+            <div class="control-group">
+              <label class="form-label">Confidence Score (0–100)</label>
+              <input type="number" id="pc-confidence" class="form-input" min="0" max="100" placeholder="87" />
+            </div>
+          </div>
+
+          <!-- Global delay slider -->
+          <div class="delay-control">
+            <label class="form-label">
+              Global Production Delay: <strong id="delayLabel">0 days</strong>
+            </label>
+            <input type="range" id="delaySlider" min="0" max="10" value="0" class="delay-slider" />
+            <div class="delay-markers">
+              <span>0</span><span>2</span><span>4</span><span>6</span><span>8</span><span>10 days</span>
+            </div>
+            <p class="delay-hint">This delay is added to all estimated ship dates globally.</p>
+          </div>
+
+          <button class="btn-track" onclick="adminApp.saveProduction()">Save Production Settings</button>
+        </div>
+
+        <!-- History chart placeholder -->
+        <div class="admin-section">
+          <h2 class="admin-section-title">14-Day History</h2>
+          <div id="productionHistory"></div>
+        </div>
+      </div>
+
+      <!-- ===== BEHAVIOR ===== -->
+      <div class="admin-tab" id="tab-behavior" style="display:none">
+        <div class="tab-header">
+          <h1 class="tab-title">Customer Behavior</h1>
+        </div>
+        <div class="admin-section">
+          <h2 class="admin-section-title">Top Order Viewers (Last 7 Days)</h2>
+          <div id="topViewers"></div>
+        </div>
+        <div class="admin-section">
+          <h2 class="admin-section-title">Repeat Ticket Openers</h2>
+          <div id="repeatOpeners"></div>
+        </div>
+      </div>
+
+      <!-- ===== ACTIVITY FEED ===== -->
+      <div class="admin-tab" id="tab-activity" style="display:none">
+        <div class="tab-header">
+          <h1 class="tab-title">Activity Feed</h1>
+        </div>
+        <div class="admin-section">
+          <h2 class="admin-section-title">Post New Activity</h2>
+          <div class="form-row">
+            <div class="form-group" style="flex:2">
+              <input type="text" id="newActivity" class="form-input" placeholder="Activity message..." />
+            </div>
+            <div class="form-group" style="flex:1">
+              <select id="activityType" class="form-input">
+                <option value="production">Production</option>
+                <option value="shipped">Shipped</option>
+                <option value="update">Update</option>
+                <option value="support">Support</option>
+              </select>
+            </div>
+            <div style="display:flex;align-items:flex-end">
+              <button class="btn-track" onclick="adminApp.postActivity()">Post</button>
+            </div>
+          </div>
+        </div>
+        <div class="admin-section">
+          <h2 class="admin-section-title">Recent Feed Entries</h2>
+          <div id="activityList"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="/js/admin.js"></script>
+</body>
+</html>

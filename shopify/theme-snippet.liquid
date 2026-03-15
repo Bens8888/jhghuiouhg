@@ -1,0 +1,85 @@
+{% comment %}
+  =============================================
+  PLUG & PLAY — SHOPIFY THEME SNIPPETS
+  =============================================
+  Instructions:
+  1. Go to Shopify Admin → Online Store → Themes → Edit code
+  2. Create a new snippet: Snippets → Add a new snippet → "pnp-tracker-btn"
+  3. Paste the button HTML below
+  4. Include it in your order confirmation template
+  =============================================
+{% endcomment %}
+
+{% comment %} ===== TRACK ORDER BUTTON ===== {% endcomment %}
+{% comment %} Include in templates/customers/order.liquid {% endcomment %}
+
+<div style="margin: 24px 0; text-align: center;">
+  <a
+    href="{{ 'REPLACE_WITH_YOUR_TRACKER_URL' | append: '/?order=' | append: order.name | append: '&email=' | append: customer.email | url_encode }}"
+    style="
+      display: inline-block;
+      padding: 14px 32px;
+      background: linear-gradient(135deg, #6366f1, #06b6d4);
+      color: white;
+      font-weight: 700;
+      font-size: 16px;
+      border-radius: 10px;
+      text-decoration: none;
+      box-shadow: 0 4px 20px rgba(99,102,241,0.35);
+    "
+    target="_blank"
+  >
+    🚚 Track My Order
+  </a>
+  <p style="margin-top: 10px; font-size: 14px; color: #64748b;">
+    Get real-time production updates and delivery estimates
+  </p>
+</div>
+
+{% comment %} ===== ORDER CONFIRMATION EMAIL SNIPPET ===== {% endcomment %}
+{% comment %}
+  Add this to your Shopify email notifications:
+  Shopify Admin → Settings → Notifications → Order Confirmation → Edit
+  Paste the HTML (not Liquid) version below into the email template
+{% endcomment %}
+
+<!--
+  EMAIL HTML VERSION (paste into Shopify email notification):
+
+  <div style="text-align:center; padding: 20px 0;">
+    <a href="REPLACE_WITH_YOUR_TRACKER_URL/?order={{ name }}&email={{ email }}"
+       style="background:linear-gradient(135deg,#6366f1,#06b6d4);color:white;padding:14px 28px;
+              border-radius:10px;text-decoration:none;font-weight:bold;font-size:15px;
+              display:inline-block">
+      🚚 Track Your Order
+    </a>
+    <p style="font-size:13px;color:#64748b;margin-top:10px">
+      See live production status, estimated delivery, and more
+    </p>
+  </div>
+-->
+
+{% comment %} ===== EMBEDDED IFRAME VERSION ===== {% endcomment %}
+{% comment %}
+  Create a new page in Shopify Admin → Online Store → Pages
+  Title: "Track Your Order"
+  Handle: track-order
+  Then paste this into the page content (HTML mode):
+{% endcomment %}
+
+<!--
+  PAGE EMBED (paste as HTML in Shopify page editor):
+
+  <script>
+    // Auto-detect logged-in customer
+    var trackerUrl = 'REPLACE_WITH_YOUR_TRACKER_URL';
+  </script>
+  <style>
+    .pnp-tracker-wrapper { width: 100%; min-height: 90vh; margin: 0; padding: 0; }
+    .pnp-tracker-wrapper iframe { width: 100%; min-height: 90vh; border: none; border-radius: 12px; }
+    @media (max-width: 768px) { .pnp-tracker-wrapper iframe { border-radius: 0; } }
+  </style>
+  <div class="pnp-tracker-wrapper">
+    <iframe src="REPLACE_WITH_YOUR_TRACKER_URL" loading="lazy" title="Order Tracking"></iframe>
+  </div>
+-->

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Track Your Order — Plug & Play</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body class="home-page">
+
+  <!-- Animated background -->
+  <div class="bg-grid"></div>
+  <div class="bg-glow"></div>
+
+  <main class="home-container">
+
+    <!-- Logo -->
+    <header class="home-header">
+      <div class="logo-wrap">
+        <div class="logo-icon">
+          <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="20" cy="20" r="18" stroke="url(#grad)" stroke-width="2.5"/>
+            <path d="M13 20l5 5 9-10" stroke="url(#grad)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <defs>
+              <linearGradient id="grad" x1="0" y1="0" x2="40" y2="40">
+                <stop offset="0%" stop-color="#6366f1"/>
+                <stop offset="100%" stop-color="#06b6d4"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div class="logo-text">
+          <span class="logo-main">Plug &amp; Play</span>
+          <span class="logo-sub">Order Tracking</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Track form -->
+    <section class="track-card">
+      <div class="track-card-inner">
+        <h1 class="track-title">Track Your Order</h1>
+        <p class="track-subtitle">Enter your order details below to see real-time production status and delivery estimates.</p>
+
+        <form id="trackForm" class="track-form" novalidate>
+          <div class="form-group">
+            <label for="orderNumber" class="form-label">Order Number</label>
+            <div class="input-wrap">
+              <span class="input-icon">
+                <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/></svg>
+              </span>
+              <input
+                type="text"
+                id="orderNumber"
+                name="orderNumber"
+                class="form-input"
+                placeholder="e.g. #1001"
+                autocomplete="off"
+                required
+              />
+            </div>
+            <span class="form-hint">Found in your confirmation email</span>
+          </div>
+
+          <div class="form-group">
+            <label for="emailOrPhone" class="form-label">Email or Phone Number</label>
+            <div class="input-wrap">
+              <span class="input-icon">
+                <svg viewBox="0 0 20 20" fill="currentColor"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/></svg>
+              </span>
+              <input
+                type="text"
+                id="emailOrPhone"
+                name="emailOrPhone"
+                class="form-input"
+                placeholder="Email used at checkout"
+                autocomplete="email"
+                required
+              />
+            </div>
+          </div>
+
+          <div id="formError" class="form-error" style="display:none"></div>
+
+          <button type="submit" class="btn-track" id="trackBtn">
+            <span class="btn-text">Track My Order</span>
+            <span class="btn-icon">
+              <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+            </span>
+            <span class="btn-loader" style="display:none">
+              <svg class="spin" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-dasharray="60" stroke-dashoffset="15"/></svg>
+            </span>
+          </button>
+        </form>
+
+        <!-- Trust badges -->
+        <div class="trust-row">
+          <div class="trust-badge">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+            <span>Secure</span>
+          </div>
+          <div class="trust-badge">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg>
+            <span>Live Updates</span>
+          </div>
+          <div class="trust-badge">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>
+            <span>Full History</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Help link -->
+    <p class="home-help-text">
+      Need help tracking your order?
+      <a href="https://www.tiktok.com/@plugnplay" target="_blank" rel="noopener" class="tiktok-link">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V9.37a8.26 8.26 0 004.83 1.55V7.47a4.85 4.85 0 01-1.06-.78z"/></svg>
+        Contact us on TikTok @plugnplay
+      </a>
+    </p>
+
+    <!-- Live stats ticker -->
+    <div class="stats-ticker">
+      <div class="ticker-inner" id="statsTicker">
+        <span class="ticker-item">
+          <span class="ticker-dot green"></span>
+          <span id="tickerProduced">173</span> orders produced today
+        </span>
+        <span class="ticker-sep">·</span>
+        <span class="ticker-item">
+          <span class="ticker-dot blue"></span>
+          <span id="tickerShipped">312</span> shipped this week
+        </span>
+        <span class="ticker-sep">·</span>
+        <span class="ticker-item">
+          <span class="ticker-dot purple"></span>
+          <span id="tickerQueue">847</span> in production queue
+        </span>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="/js/main.js"></script>
+  <script>
+    // Home page form submit
+    document.getElementById('trackForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('trackBtn');
+      const btnText = btn.querySelector('.btn-text');
+      const btnIcon = btn.querySelector('.btn-icon');
+      const btnLoader = btn.querySelector('.btn-loader');
+      const errorDiv = document.getElementById('formError');
+
+      const orderNumber = document.getElementById('orderNumber').value.trim();
+      const emailOrPhone = document.getElementById('emailOrPhone').value.trim();
+
+      if (!orderNumber || !emailOrPhone) {
+        errorDiv.textContent = 'Please fill in both fields.';
+        errorDiv.style.display = 'block';
+        return;
+      }
+
+      // Show loader
+      btnText.textContent = 'Searching...';
+      btnIcon.style.display = 'none';
+      btnLoader.style.display = 'inline-flex';
+      btn.disabled = true;
+      errorDiv.style.display = 'none';
+
+      try {
+        const res = await fetch('/api/track', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderNumber, emailOrPhone }),
+        });
+        const data = await res.json();
+
+        if (!res.ok || !data.success) {
+          throw new Error(data.error || 'Order not found.');
+        }
+
+        // Store data and redirect
+        sessionStorage.setItem('pnp_order_data', JSON.stringify(data));
+        sessionStorage.setItem('pnp_order_number', orderNumber);
+        window.location.href = `/track?order=${encodeURIComponent(orderNumber)}`;
+      } catch (err) {
+        errorDiv.textContent = err.message;
+        errorDiv.style.display = 'block';
+        btnText.textContent = 'Track My Order';
+        btnIcon.style.display = 'inline-flex';
+        btnLoader.style.display = 'none';
+        btn.disabled = false;
+      }
+    });
+
+    // Load live stats
+    fetch('/api/stats').then(r => r.json()).then(data => {
+      document.getElementById('tickerProduced').textContent = data.ordersProducedToday;
+      document.getElementById('tickerShipped').textContent = data.ordersShippedThisWeek;
+      document.getElementById('tickerQueue').textContent = data.ordersInQueue;
+    }).catch(() => {});
+  </script>
+</body>
+</html>

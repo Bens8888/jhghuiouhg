@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Order Status — Plug & Play</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/styles.css" />
+  <link rel="stylesheet" href="/css/tracking.css" />
+</head>
+<body class="tracking-page">
+
+  <div class="bg-grid"></div>
+
+  <!-- Top navigation -->
+  <nav class="top-nav">
+    <a href="/" class="nav-logo">
+      <div class="logo-icon small">
+        <svg viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="18" stroke="url(#grad2)" stroke-width="2.5"/><path d="M13 20l5 5 9-10" stroke="url(#grad2)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="grad2" x1="0" y1="0" x2="40" y2="40"><stop offset="0%" stop-color="#6366f1"/><stop offset="100%" stop-color="#06b6d4"/></linearGradient></defs></svg>
+      </div>
+      <span>Plug &amp; Play</span>
+    </a>
+    <a href="/" class="nav-back">← Track another order</a>
+  </nav>
+
+  <div class="tracking-layout" id="trackingApp">
+
+    <!-- Loading state -->
+    <div class="loading-state" id="loadingState">
+      <div class="loading-orb"></div>
+      <p>Loading your order details...</p>
+    </div>
+
+    <!-- Error state -->
+    <div class="error-state" id="errorState" style="display:none">
+      <div class="error-icon">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+      </div>
+      <h2>Order Not Found</h2>
+      <p id="errorMsg">We couldn't find your order. Please try again.</p>
+      <a href="/" class="btn-secondary">Back to Tracking</a>
+    </div>
+
+    <!-- Main tracking content -->
+    <div id="trackingContent" style="display:none">
+
+      <!-- ===== HEADER: ORDER SUMMARY ===== -->
+      <div class="section order-summary-section">
+        <div class="order-header">
+          <div class="order-header-left">
+            <div class="order-number-badge" id="orderNumberBadge"></div>
+            <div class="order-header-info">
+              <h1 class="order-title">Order Status</h1>
+              <p class="order-date" id="orderDate"></p>
+            </div>
+          </div>
+          <div class="order-status-badge" id="orderStatusBadge"></div>
+        </div>
+
+        <!-- Reassurance banner -->
+        <div class="reassurance-banner">
+          <div class="reassurance-icon">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+          </div>
+          <div class="reassurance-text">
+            <strong>Your order is safe and important to us.</strong>
+            <span id="reassuranceMsg">Your order is progressing normally through our production pipeline.</span>
+          </div>
+        </div>
+
+        <!-- Order details grid -->
+        <div class="order-details-grid">
+          <div class="detail-card">
+            <span class="detail-label">Shipping Method</span>
+            <span class="detail-value" id="shippingMethod">—</span>
+          </div>
+          <div class="detail-card">
+            <span class="detail-label">Est. Ship Date</span>
+            <span class="detail-value" id="estShipDate">Calculating...</span>
+          </div>
+          <div class="detail-card">
+            <span class="detail-label">Est. Delivery</span>
+            <span class="detail-value" id="estDelivery">Calculating...</span>
+          </div>
+          <div class="detail-card" id="trackingCard" style="display:none">
+            <span class="detail-label">Tracking Number</span>
+            <a class="detail-value tracking-link" id="trackingLink" target="_blank">—</a>
+          </div>
+          <div class="detail-card">
+            <span class="detail-label">Batch</span>
+            <span class="detail-value" id="batchNumber">—</span>
+          </div>
+          <div class="detail-card">
+            <span class="detail-label">Production Score</span>
+            <span class="detail-value confidence-val" id="confidenceScore">—</span>
+          </div>
+        </div>
+
+        <!-- Items ordered -->
+        <div class="items-section">
+          <h3 class="items-title">Items Ordered</h3>
+          <div id="itemsList" class="items-list"></div>
+        </div>
+      </div>
+
+      <!-- ===== PROGRESS BAR ===== -->
+      <div class="section progress-section">
+        <div class="progress-header">
+          <h2 class="section-title">Production Progress</h2>
+          <div class="progress-pct" id="progressPct">0%</div>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progressFill"></div>
+          <div class="progress-glow" id="progressGlow"></div>
+        </div>
+        <div class="progress-meta">
+          <span class="progress-step-label" id="currentStepLabel">Processing...</span>
+          <span class="countdown-label" id="countdownLabel"></span>
+        </div>
+      </div>
+
+      <!-- ===== PRODUCTION TIMELINE ===== -->
+      <div class="section timeline-section">
+        <h2 class="section-title">Production Timeline</h2>
+        <div class="timeline" id="timeline"></div>
+      </div>
+
+      <!-- ===== STATS ROW ===== -->
+      <div class="section stats-section">
+        <h2 class="section-title">Production Activity</h2>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-number" id="statProduced">—</div>
+            <div class="stat-label">Orders produced today</div>
+            <div class="stat-trend up" id="statProducedTrend">
+              <svg viewBox="0 0 16 16" fill="currentColor"><path d="M7 4L13 10H1L7 4Z"/></svg>
+              <span>Live</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="statShipped">—</div>
+            <div class="stat-label">Orders shipped this week</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="statQueue">—</div>
+            <div class="stat-label">In production queue</div>
+          </div>
+          <div class="stat-card confidence-card">
+            <div class="stat-number confidence-big" id="statConfidence">—%</div>
+            <div class="stat-label">Production confidence</div>
+            <div class="confidence-bar-mini">
+              <div class="confidence-bar-fill" id="confBarFill"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== QUEUE INFO ===== -->
+      <div class="section queue-section" id="queueSection">
+        <h2 class="section-title">Queue Position</h2>
+        <div class="queue-display">
+          <div class="queue-batch">
+            <span class="queue-label">Your Batch</span>
+            <span class="queue-value" id="queueBatch">#24</span>
+          </div>
+          <div class="queue-ahead">
+            <span class="queue-label">Orders ahead of yours</span>
+            <span class="queue-value" id="queueAhead">—</span>
+          </div>
+          <div class="queue-note">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+            Orders are batched for efficient production — your position advances as each batch completes.
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== MAP ===== -->
+      <div class="section map-section" id="mapSection" style="display:none">
+        <h2 class="section-title">Delivery Address</h2>
+        <div class="map-container" id="mapContainer"></div>
+        <div class="delivery-address" id="deliveryAddress"></div>
+      </div>
+
+      <!-- ===== ACTIVITY FEED ===== -->
+      <div class="section activity-section">
+        <h2 class="section-title">Production Activity Feed</h2>
+        <div class="activity-feed" id="activityFeed"></div>
+      </div>
+
+      <!-- ===== TICKET STATUS ===== -->
+      <div class="section tickets-section" id="ticketsSection" style="display:none">
+        <h2 class="section-title">Your Support Tickets</h2>
+        <div id="ticketsList"></div>
+      </div>
+
+      <!-- ===== HELP BUTTON ===== -->
+      <div class="section help-cta-section">
+        <div class="help-cta-card">
+          <div class="help-cta-icon">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+          </div>
+          <div class="help-cta-text">
+            <strong>Need help with your order?</strong>
+            <p>Our support team is here for you. Open a ticket and we'll respond within 24 hours.</p>
+          </div>
+          <a href="#" class="btn-help" id="openHelpBtn">Get Help</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Timeline Step Popup -->
+  <div class="popup-overlay" id="popupOverlay" style="display:none">
+    <div class="popup-card">
+      <button class="popup-close" id="popupClose">×</button>
+      <div class="popup-icon-wrap" id="popupIcon"></div>
+      <h3 class="popup-title" id="popupTitle"></h3>
+      <p class="popup-desc" id="popupDesc"></p>
+      <div class="popup-duration" id="popupDuration"></div>
+    </div>
+  </div>
+
+  <script src="/js/simulation.js"></script>
+  <script src="/js/tracking.js"></script>
+</body>
+</html>

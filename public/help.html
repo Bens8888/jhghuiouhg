@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Order Help — Plug & Play</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/styles.css" />
+  <link rel="stylesheet" href="/css/help.css" />
+</head>
+<body class="help-page">
+
+  <div class="bg-grid"></div>
+
+  <nav class="top-nav">
+    <a href="/" class="nav-logo">
+      <div class="logo-icon small">
+        <svg viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="18" stroke="url(#gH)" stroke-width="2.5"/><path d="M13 20l5 5 9-10" stroke="url(#gH)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="gH" x1="0" y1="0" x2="40" y2="40"><stop offset="0%" stop-color="#6366f1"/><stop offset="100%" stop-color="#06b6d4"/></linearGradient></defs></svg>
+      </div>
+      <span>Plug &amp; Play</span>
+    </a>
+    <a href="javascript:history.back()" class="nav-back">← Back to order</a>
+  </nav>
+
+  <main class="help-container">
+
+    <!-- Step indicator -->
+    <div class="step-indicator">
+      <div class="step-dot active" id="step1dot"></div>
+      <div class="step-line" id="line1"></div>
+      <div class="step-dot" id="step2dot"></div>
+      <div class="step-line" id="line2"></div>
+      <div class="step-dot" id="step3dot"></div>
+    </div>
+
+    <!-- ======= STEP 1: FAQ & Issue Selection ======= -->
+    <div class="help-step" id="step1">
+      <h1 class="help-title">How can we help?</h1>
+      <p class="help-subtitle">Select your issue below. Many questions are answered instantly.</p>
+
+      <!-- FAQ Search -->
+      <div class="faq-search-wrap">
+        <div class="input-wrap">
+          <span class="input-icon">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/></svg>
+          </span>
+          <input type="text" id="faqSearch" class="form-input" placeholder="Type your question..." />
+        </div>
+      </div>
+
+      <!-- FAQ suggestions (shown when typing) -->
+      <div id="faqSuggestions" class="faq-suggestions" style="display:none"></div>
+
+      <!-- Issue type buttons -->
+      <div class="issue-grid" id="issueGrid">
+        <button class="issue-btn" data-issue="not_shipped">
+          <div class="issue-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </div>
+          <div class="issue-label">My order hasn't shipped</div>
+          <div class="issue-hint">Track production progress</div>
+        </button>
+        <button class="issue-btn" data-issue="not_arrived">
+          <div class="issue-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+          </div>
+          <div class="issue-label">My order hasn't arrived</div>
+          <div class="issue-hint">Check delivery status</div>
+        </button>
+        <button class="issue-btn" data-issue="damaged" style="border-color: rgba(239,68,68,0.3)">
+          <div class="issue-icon" style="color:#ef4444">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+          </div>
+          <div class="issue-label">Item arrived damaged</div>
+          <div class="issue-hint">Submit photo/video proof</div>
+        </button>
+        <button class="issue-btn" data-issue="refund">
+          <div class="issue-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>
+          </div>
+          <div class="issue-label">Return / Refund request</div>
+          <div class="issue-hint">48hr refund · 14 day return</div>
+        </button>
+        <button class="issue-btn" data-issue="where_is_order">
+          <div class="issue-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </div>
+          <div class="issue-label">Where is my order?</div>
+          <div class="issue-hint">Production location update</div>
+        </button>
+      </div>
+
+      <!-- FAQ Accordion -->
+      <div class="faq-section">
+        <h3 class="faq-title">Frequently Asked Questions</h3>
+        <div id="faqList" class="faq-list"></div>
+      </div>
+    </div>
+
+    <!-- ======= STEP 2: Customer Details ======= -->
+    <div class="help-step" id="step2" style="display:none">
+      <div class="step-back-btn" id="backToStep1">← Back</div>
+      <h2 class="help-title" id="step2Title">Tell us about the issue</h2>
+
+      <!-- Issue context panel -->
+      <div class="issue-context" id="issueContext"></div>
+
+      <!-- Refund policy notice -->
+      <div class="policy-notice" id="refundPolicy" style="display:none">
+        <div class="policy-icon">📋</div>
+        <div class="policy-content">
+          <strong>Refund & Return Policy</strong>
+          <ul>
+            <li>Refunds available within <strong>48 hours</strong> of order placement</li>
+            <li>Returns accepted within <strong>14 days</strong> of delivery</li>
+            <li>Customer is responsible for return shipping costs</li>
+            <li>Items must be unused and in original packaging</li>
+          </ul>
+        </div>
+      </div>
+
+      <form id="ticketForm" novalidate>
+        <input type="hidden" id="issueTypeInput" name="issueType" />
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Full Name <span class="required">*</span></label>
+            <input type="text" name="customerName" class="form-input" placeholder="Your full name" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email Address <span class="required">*</span></label>
+            <input type="email" name="customerEmail" class="form-input" placeholder="order@email.com" required />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Phone Number</label>
+            <input type="tel" name="customerPhone" class="form-input" placeholder="04xx xxx xxx" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">TikTok Username</label>
+            <input type="text" name="tiktokUsername" class="form-input" placeholder="@yourtiktok" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Order Number <span class="required">*</span></label>
+          <input type="text" name="orderNumber" id="helpOrderNumber" class="form-input" placeholder="#1001" required />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Tell us more about the issue</label>
+          <textarea name="description" class="form-input form-textarea" rows="4" placeholder="Describe what happened..."></textarea>
+        </div>
+
+        <!-- Proof upload (shown for damaged items) -->
+        <div class="proof-section" id="proofSection" style="display:none">
+          <div class="proof-note">
+            <div class="proof-note-icon">📸</div>
+            <div>
+              <strong>Photo/Video Proof Required</strong>
+              <p>For damaged items, please attach a clear photo or video showing the damage. This speeds up your replacement.</p>
+            </div>
+          </div>
+          <label class="form-label">Upload Proof (optional — or send via WhatsApp after ticket creation)</label>
+          <div class="upload-zone" id="uploadZone">
+            <input type="file" id="proofFile" name="proof" accept="image/*,video/*" style="display:none" />
+            <div class="upload-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+            </div>
+            <p>Click to upload or drag & drop</p>
+            <p class="upload-hint">JPG, PNG, GIF, MP4 up to 10MB</p>
+          </div>
+          <div id="filePreview" style="display:none"></div>
+        </div>
+
+        <div id="ticketFormError" class="form-error" style="display:none"></div>
+
+        <button type="submit" class="btn-track" id="submitTicketBtn">
+          <span class="btn-text">Submit Support Ticket</span>
+          <span class="btn-loader" style="display:none">
+            <svg class="spin" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-dasharray="60" stroke-dashoffset="15"/></svg>
+          </span>
+        </button>
+      </form>
+    </div>
+
+    <!-- ======= STEP 3: Confirmation ======= -->
+    <div class="help-step" id="step3" style="display:none">
+      <div class="confirmation-wrap">
+        <div class="confirm-icon">
+          <svg viewBox="0 0 60 60" fill="none">
+            <circle cx="30" cy="30" r="28" stroke="url(#cG)" stroke-width="3"/>
+            <path d="M18 30l8 8 16-16" stroke="url(#cG)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <defs><linearGradient id="cG" x1="0" y1="0" x2="60" y2="60"><stop offset="0%" stop-color="#6366f1"/><stop offset="100%" stop-color="#06b6d4"/></linearGradient></defs>
+          </svg>
+        </div>
+        <h2 class="help-title">Ticket Created!</h2>
+        <p class="confirm-text">We've received your support request and our team will review it within <strong>24 hours</strong>.</p>
+
+        <div class="ticket-ref-card">
+          <span class="ticket-ref-label">Your Reference Number</span>
+          <span class="ticket-ref-num" id="ticketRefNum">—</span>
+          <span class="ticket-ref-hint">Save this for your records</span>
+        </div>
+
+        <!-- WhatsApp section (only for damaged items) -->
+        <div class="whatsapp-section" id="whatsappSection" style="display:none">
+          <div class="whatsapp-card">
+            <div class="wa-icon">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.999 2.004C6.477 2.004 2 6.481 2 12c0 1.906.505 3.687 1.387 5.224L2.004 22l4.9-1.364A9.96 9.96 0 0012 21.996c5.523 0 10-4.477 10-10 0-5.52-4.477-9.992-10.001-9.992zM12 19.997a7.99 7.99 0 01-4.071-1.109l-.293-.174-3.02.84.85-2.966-.192-.306A7.938 7.938 0 014.003 12C4 7.589 7.589 4 12 4c4.412 0 7.999 3.589 7.999 8 0 4.412-3.587 8-8 8z"/></svg>
+            </div>
+            <div class="wa-content">
+              <strong>Send Your Proof via WhatsApp</strong>
+              <p>Message us with your reference number and photo/video proof of the damage.</p>
+              <a class="btn-whatsapp" id="whatsappBtn" href="#" target="_blank" rel="noopener">
+                Open WhatsApp Chat
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="confirm-actions">
+          <a href="/" class="btn-secondary">Back to Tracking</a>
+          <a href="#" id="viewTicketBtn" class="btn-track" style="display:none">View Ticket Status</a>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="/js/help.js"></script>
+</body>
+</html>
